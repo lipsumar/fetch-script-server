@@ -1,0 +1,3 @@
+$set apis.sample.baseUrl http://jsonplaceholder.typicode.com
+
+/sample/users
