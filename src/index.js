@@ -18,7 +18,7 @@ app.get('/script/:scriptName', checkScriptAccess, (req, res, next) => {
   const fetchScript = new FetchScript()
   fetchScript.on('out', out => outs.push(out))
   fetchScript.on('error', e => errors.push(e))
-  fetchScript.executeCode(code).then(() => {
+  fetchScript.executeCode(code).then((outs) => {
     res.send({
       errors,
       out: outs

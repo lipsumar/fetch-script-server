@@ -1,3 +1,5 @@
 $set apis.sample.baseUrl http://jsonplaceholder.typicode.com
 
-/sample/users
+us = /sample/users
+
+/sample/users/{us[*].id}
