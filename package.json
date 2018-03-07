@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.2",
-    "fetch-script": "file:../fetch-script"
+    "fetch-script": "github:lipsumar/fetch-script#428ed19fb217f26d1c95ee06af30b7e38a210e10"
   },
   "devDependencies": {
     "eslint": "^4.18.1",
