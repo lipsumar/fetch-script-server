@@ -5,13 +5,15 @@
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js"
+    "start": "node server"
   },
   "author": "Emmanuel Pire <piremmanuel@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
     "express": "^4.16.2",
-    "fetch-script": "github:lipsumar/fetch-script#428ed19fb217f26d1c95ee06af30b7e38a210e10"
+    "fetch-script": "file:../fetch-script"
   },
   "devDependencies": {
     "eslint": "^4.18.1",

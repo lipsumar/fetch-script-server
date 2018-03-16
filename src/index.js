@@ -1,30 +1,84 @@
 const express = require('express')
+const bodyParser = require('body-parser')
+const cors = require('cors')
 const app = express()
 const fs = require('fs')
 const path = require('path')
 const tokens = require('../tokens.json')
 const FetchScript = require('fetch-script')
+const crypto = require('crypto')
+const sessions = {}
 
-app.get('/script/:scriptName', checkScriptAccess, (req, res, next) => {
+app.use(cors())
+app.use(bodyParser.json())
+
+app.get('/script/:scriptName', checkScriptAccess, (req, res) => {
   let code = null
   try {
     code = getScriptCode(req.params.scriptName)
   } catch (err) {
     console.error(err)
-    return res.send({error: 'Could not load script'})
+    return res.send({ error: 'Could not load script' })
   }
   const outs = []
   const errors = []
   const fetchScript = new FetchScript()
   fetchScript.on('out', out => outs.push(out))
   fetchScript.on('error', e => errors.push(e))
-  fetchScript.executeCode(code).then((outs) => {
+  fetchScript.executeCode(code).then(outs => {
     res.send({
       errors,
       out: outs
     })
   })
 })
+
+app.post('/start-session', checkExecuteAccess, (req, res) => {
+  const sessionId = crypto.randomBytes(4).toString('hex')
+  sessions[sessionId] = new FetchScript()
+  res.send({ sessionId })
+})
+
+app.post('/execute', checkExecuteAccess, (req, res) => {
+  if (!req.body.sessionId) {
+    return res.status(400).send({
+      error: 'sessionId required'
+    })
+  }
+  const fetchScript = sessions[req.body.sessionId]
+  if (!fetchScript) {
+    return res.status(400).send({
+      error: 'invalid sessionId'
+    })
+  }
+  const errors = []
+  fetchScript.on('error', e => errors.push(e))
+  fetchScript.executeCode(req.body.code).then(outs => {
+    const result = {
+      errors,
+      out: outs
+    }
+    if (req.body.dumpVars) {
+      result.vars = fetchScript.getVars()
+    }
+    res.send(result)
+  })
+})
+
+function checkExecuteAccess (req, res, next) {
+  const token = req.get('private-token')
+  if (!token) {
+    return res.send({ error: 'Missing Private-Token header' })
+  }
+  const tokenData = getTokenData(token)
+  if (tokenData && tokenData.execute) {
+    next()
+  } else {
+    return res.status(401).send({
+      error: 'This token does not have permission to execute code on this server'
+    })
+  }
+}
 
 function checkScriptAccess (req, res, next) {
   const token = req.get('private-token')
@@ -52,10 +106,7 @@ function getTokenData (token) {
 }
 
 function getScriptCode (scriptFile) {
-  return fs.readFileSync(
-    path.resolve(__dirname, '../scripts/' + scriptFile),
-    { encoding: 'utf-8' }
-  )
+  return fs.readFileSync(path.resolve(__dirname, '../scripts/' + scriptFile), { encoding: 'utf-8' })
 }
 
 module.exports = app
