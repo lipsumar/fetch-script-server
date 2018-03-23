@@ -13,6 +13,8 @@ app.use(cors())
 app.use(bodyParser.json())
 
 app.post('/script/:scriptName', checkScriptAccess, (req, res) => {
+  const token = req.get('private-token')
+  const tokenData = getTokenData(token)
   let code = null
   try {
     code = getScriptCode(req.params.scriptName)
@@ -22,7 +24,7 @@ app.post('/script/:scriptName', checkScriptAccess, (req, res) => {
   }
   const outs = []
   const errors = []
-  const fetchScript = new FetchScript()
+  const fetchScript = new FetchScript(tokenData.options || null)
   fetchScript.on('out', out => outs.push(out))
   fetchScript.on('error', e => errors.push(e))
   fetchScript.executeCode(code).then(outs => {
