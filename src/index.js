@@ -12,7 +12,7 @@ const sessions = {}
 app.use(cors())
 app.use(bodyParser.json())
 
-app.get('/script/:scriptName', checkScriptAccess, (req, res) => {
+app.post('/script/:scriptName', checkScriptAccess, (req, res) => {
   let code = null
   try {
     code = getScriptCode(req.params.scriptName)
