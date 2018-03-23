@@ -34,8 +34,10 @@ app.get('/script/:scriptName', checkScriptAccess, (req, res) => {
 })
 
 app.post('/start-session', checkExecuteAccess, (req, res) => {
+  const token = req.get('private-token')
   const sessionId = crypto.randomBytes(4).toString('hex')
-  sessions[sessionId] = new FetchScript()
+  const tokenData = getTokenData(token)
+  sessions[sessionId] = new FetchScript(tokenData.options || null)
   res.send({ sessionId })
 })
 
