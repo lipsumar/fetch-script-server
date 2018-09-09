@@ -66,6 +66,8 @@ app.post('/execute', checkExecuteAccess, (req, res) => {
       result.vars = fetchScript.getVars()
     }
     res.send(result)
+  }).catch(err => {
+    res.send({errors: [err.message], out: []})
   })
 })
 
