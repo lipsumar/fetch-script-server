@@ -25,6 +25,7 @@ app.post('/script/:scriptName', checkScriptAccess, (req, res) => {
   const outs = []
   const errors = []
   const fetchScript = new FetchScript(tokenData.options || null)
+  fetchScript.setVariables(req.query)
   fetchScript.on('out', out => outs.push(out))
   fetchScript.on('error', e => errors.push(e))
   fetchScript.executeCode(code).then(outs => {
