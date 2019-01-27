@@ -20,7 +20,7 @@ app.post('/script/:scriptName', checkScriptAccess, (req, res) => {
     code = getScriptCode(req.params.scriptName)
   } catch (err) {
     console.error(err)
-    return res.send({ error: 'Could not load script' })
+    return res.send({ error: 'Could not load script', message: err.message })
   }
   const outs = []
   const errors = []
